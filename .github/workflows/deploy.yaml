@@ -5,6 +5,7 @@ on:
     branches:
       - develop
       - staging
+      - feature/nextcloud-deepak
 
 jobs:
   build-and-deploy:
@@ -23,27 +24,16 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME_DEEPAK }}
+          password: ${{ secrets.DOCKERHUB_TOKEN_DEEPAK }}
 
       - name: Build Docker image
         run: |
           docker build \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/nextcloud-apache:${{ steps.vars.outputs.IMAGE_TAG }} \
+            -t ${{ secrets.DOCKERHUB_USERNAME_DEEPAK }}/nextcloud-apache:${{ steps.vars.outputs.IMAGE_TAG }} \
             .
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nextcloud-apache:${{ steps.vars.outputs.IMAGE_TAG }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME_DEEPAK }}/nextcloud-apache:${{ steps.vars.outputs.IMAGE_TAG }}
 
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd ${{ secrets.DEPLOY_PATH }}
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nextcloud-apache:${{ steps.vars.outputs.IMAGE_TAG }}
-            docker compose down
-            docker compose up -d
